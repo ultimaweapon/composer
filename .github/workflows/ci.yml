@@ -20,4 +20,4 @@ jobs:
     - name: Build
       run: dotnet build -c Release src/Composer.sln
     - name: Run tests
-      run: dotnet test -c Release --no-build
+      run: dotnet test -c Release --no-build src/Composer.sln
