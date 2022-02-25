@@ -1,0 +1,40 @@
+name: CD
+on:
+  push:
+    tags:
+    - '*'
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v2
+    - name: Set up .NET SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
+    - name: Create NuGet packages
+      run: dotnet pack -c Release -o packages src/Composer.sln
+    - name: Upload NuGet packages
+      uses: actions/upload-artifact@v2
+      with:
+        name: packages
+        path: packages
+  publish:
+    name: Publish
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+    - name: Download NuGet packages
+      uses: actions/download-artifact@v2
+      with:
+        name: packages
+        path: packages
+    - name: Set up .NET SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
+    - name: Publish NuGet packages
+      run: dotnet nuget push '*.nupkg' -s https://api.nuget.org/v3/index.json -k "${{ secrets.NUGET_KEY }}" --skip-duplicate
+      working-directory: packages
