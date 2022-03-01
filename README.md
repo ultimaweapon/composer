@@ -1,5 +1,5 @@
 # Composer
-[![Nuget](https://img.shields.io/nuget/dt/Composer)](https://www.nuget.org/packages/Composer)
+[![Nuget](https://img.shields.io/nuget/v/Composer)](https://www.nuget.org/packages/Composer)
 
 This is a framework for .NET to compose an email from a configured template so the email format can be update on the fly without updating the application code.
 
