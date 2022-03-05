@@ -36,18 +36,55 @@ services
     .AddTemplateProvider<TemplateProviderImplementation>();
 ```
 
-### Amazon SES sender
+### Available sender
 
-For Amazone SES you need to install [Composer.Aws](https://www.nuget.org/packages/Composer.Aws) then invoke `AddAmazonSimpleEmailService`:
+- [Amazone SES](https://github.com/ultimicro/composer-aws)
+
+### Available template provider
+
+- [StringTemplate 4](https://github.com/ultimicro/composer-stringtemplate)
+
+### Define an email
+
+You need to create a new class that derived from `Email` class. Each class represents one type of email you want to send (e.g. an email to send when user has
+signed up).
 
 ```csharp
-services
-    .AddComposer()
-    .AddAmazonSimpleEmailService()
-    .AddTemplateProvider<TemplateProviderImplementation>();
+namespace SampleApp;
+
+using System;
+using Composer;
+
+internal sealed class RegistrationCompletedEmail : Email
+{
+    public static readonly Guid Id = new Guid("e8c01835-bc01-4f03-b4f7-197d0d0a3b4a");
+
+    public RegistrationCompletedEmail(string username)
+    {
+        this.Username = username;
+    }
+
+    public string Username { get; }
+
+    protected override object TemplateId => Id;
+
+    protected override object? BuildTemplateData() => new { this.Username };
+}
 ```
 
-You also need to allow `ses:SendRawEmail` for IAM role that used by your application.
+### Send an email
+
+Inject `IEmailComposer` to the class you want to send email. Then invoke `ComposeAsync`:
+
+```csharp
+var email = new RegistrationCompletedEmail("john");
+
+await composer.ComposeAsync("john@example.com", email, cancellationToken);
+```
+
+### Add attachments
+
+Override `Email.BuildAttachments` or `Email.BuildAttachmentsAsync` to provide attachments for the email.
 
 ## License
 
